@@ -2,9 +2,15 @@
 # Infrastructure as Code platform for LocalStack
 
 # Variables
-GUILE := guile
-GUILD := guild
+GUILE := guile3
+GUILD := guild3
 GUILE_VERSION := $(shell $(GUILE) --version | head -n 1 | awk '{print $$NF}')
+GUILE_MAJOR_VERSION := $(shell $(GUILE) --version | head -n 1 | awk '{print $$NF}' | cut -d. -f1)
+GUILE_MINOR_VERSION := $(shell $(GUILE) --version | head -n 1 | awk '{print $$NF}' | cut -d. -f2)
+
+# Enforce Guile 3.0 or higher
+GUILE_VERSION_OK := $(shell [ $(GUILE_MAJOR_VERSION) -ge 3 ] && echo yes || echo no)
+
 PREFIX := /usr/local
 LIBDIR := $(PREFIX)/lib/guile/$(GUILE_VERSION)/site-ccache
 DATADIR := $(PREFIX)/share/guile/site/$(GUILE_VERSION)
@@ -22,11 +28,21 @@ DOCS := README.md docs/*.md
 
 # Default target
 .PHONY: all
-all: compile
+all: check-version compile
+
+# Version check
+.PHONY: check-version
+check-version:
+	@if [ "$(GUILE_VERSION_OK)" != "yes" ]; then \
+		echo "Error: Guile 3.0 or higher is required. Found version $(GUILE_VERSION)"; \
+		echo "Please install Guile 3 (e.g., 'pkg install guile3' on FreeBSD)"; \
+		exit 1; \
+	fi
+	@echo "Guile version check passed: $(GUILE_VERSION)"
 
 # Compilation
 .PHONY: compile
-compile: $(COMPILED)
+compile: check-version $(COMPILED)
 
 %.go: %.scm
 	@echo "Compiling $<..."
@@ -82,22 +98,22 @@ test: compile
 
 # Check dependencies
 .PHONY: check-deps
-check-deps:
+check-deps: check-version
 	@echo "Checking dependencies..."
-	@echo "Guile version: $(GUILE_VERSION)"
+	@echo "Guile version: $(GUILE_VERSION) (Major: $(GUILE_MAJOR_VERSION), Minor: $(GUILE_MINOR_VERSION))"
 	@$(GUILE) -c "(use-modules (oop goops)) (display \"GOOPS: OK\n\")"
 	@$(GUILE) -c "(use-modules (srfi srfi-1)) (display \"SRFI-1: OK\n\")"
 	@$(GUILE) -c "(use-modules (srfi srfi-19)) (display \"SRFI-19: OK\n\")"
 	@$(GUILE) -c "(use-modules (ice-9 hash-table)) (display \"Hash tables: OK\n\")"
 	@$(GUILE) -c "(use-modules (ice-9 regex)) (display \"Regex: OK\n\")"
 	@$(GUILE) -c "(use-modules (json)) (display \"JSON: OK\n\")" 2>/dev/null || \
-		echo "JSON: MISSING (install guile-json)"
+		echo "JSON: MISSING (install guile3-json or guile-json)"
 	@$(GUILE) -c "(use-modules (gcrypt hash)) (display \"Gcrypt hash: OK\n\")" 2>/dev/null || \
-		echo "Gcrypt: MISSING (install guile-gcrypt)"
+		echo "Gcrypt: MISSING (install guile3-gcrypt or guile-gcrypt)"
 	@$(GUILE) -c "(use-modules (gcrypt cipher)) (display \"Gcrypt cipher: OK\n\")" 2>/dev/null || \
-		echo "Gcrypt cipher: MISSING (install guile-gcrypt)"
+		echo "Gcrypt cipher: MISSING (install guile3-gcrypt or guile-gcrypt)"
 	@$(GUILE) -c "(use-modules (gcrypt base64)) (display \"Gcrypt base64: OK\n\")" 2>/dev/null || \
-		echo "Gcrypt base64: MISSING (install guile-gcrypt)"
+		echo "Gcrypt base64: MISSING (install guile3-gcrypt or guile-gcrypt)"
 
 # REPL for development
 .PHONY: repl
