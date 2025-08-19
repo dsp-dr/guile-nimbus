@@ -1,12 +1,15 @@
 # Nimbus IAC Platform - Makefile
 # Infrastructure as Code platform for LocalStack
 
-# Variables
-GUILE := guile3
-GUILD := guild3
-GUILE_VERSION := $(shell $(GUILE) --version | head -n 1 | awk '{print $$NF}')
-GUILE_MAJOR_VERSION := $(shell $(GUILE) --version | head -n 1 | awk '{print $$NF}' | cut -d. -f1)
-GUILE_MINOR_VERSION := $(shell $(GUILE) --version | head -n 1 | awk '{print $$NF}' | cut -d. -f2)
+# Variables - Try to find Guile 3
+# First try guile3/guild3, then fallback to guile/guild if version 3+
+GUILE := $(shell command -v guile3 2>/dev/null || command -v guile 2>/dev/null)
+GUILD := $(shell command -v guild3 2>/dev/null || command -v guild 2>/dev/null)
+
+# Get version info
+GUILE_VERSION := $(shell $(GUILE) --version 2>/dev/null | head -n 1 | awk '{print $$NF}')
+GUILE_MAJOR_VERSION := $(shell $(GUILE) --version 2>/dev/null | head -n 1 | awk '{print $$NF}' | cut -d. -f1)
+GUILE_MINOR_VERSION := $(shell $(GUILE) --version 2>/dev/null | head -n 1 | awk '{print $$NF}' | cut -d. -f2)
 
 # Enforce Guile 3.0 or higher
 GUILE_VERSION_OK := $(shell [ $(GUILE_MAJOR_VERSION) -ge 3 ] && echo yes || echo no)
@@ -33,6 +36,13 @@ all: check-version compile
 # Version check
 .PHONY: check-version
 check-version:
+	@if [ -z "$(GUILE)" ]; then \
+		echo "Error: Guile not found. Please install Guile 3.0 or higher"; \
+		echo "  Ubuntu/Debian: apt-get install guile-3.0"; \
+		echo "  FreeBSD: pkg install guile3"; \
+		echo "  macOS: brew install guile"; \
+		exit 1; \
+	fi
 	@if [ "$(GUILE_VERSION_OK)" != "yes" ]; then \
 		echo "Error: Guile 3.0 or higher is required. Found version $(GUILE_VERSION)"; \
 		echo "Please install Guile 3 (e.g., 'pkg install guile3' on FreeBSD)"; \

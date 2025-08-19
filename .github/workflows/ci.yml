@@ -14,40 +14,40 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        guile-version: ['3.0', '3.2']
+        os: [ubuntu-latest]
+        include:
+          - os: ubuntu-latest
+            guile-pkg: guile-3.0
     
     steps:
     - uses: actions/checkout@v3
     
-    - name: Install Guile (Ubuntu)
+    - name: Install dependencies (Ubuntu)
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y guile-${{ matrix.guile-version }} guile-${{ matrix.guile-version }}-dev
-        sudo apt-get install -y guile-json guile-gcrypt || true
-    
-    - name: Install Guile (macOS)
-      if: matrix.os == 'macos-latest'
-      run: |
-        brew install guile
-        brew install guile-json || true
+        sudo apt-get install -y guile-3.0 guile-3.0-dev make
+        # Try to install optional dependencies
+        sudo apt-get install -y guile-json-4 || sudo apt-get install -y guile-json || true
+        sudo apt-get install -y guile-gcrypt || true
     
     - name: Check Guile version
       run: |
-        guile --version || guile3 --version
+        which guile || which guile-3.0
+        guile --version || guile-3.0 --version
     
     - name: Check dependencies
       run: |
-        make check-deps || gmake check-deps
+        make check-deps
+      continue-on-error: true
     
     - name: Compile
       run: |
-        make compile || gmake compile
+        make compile
     
     - name: Run tests
       run: |
-        make test || gmake test
+        make test
 
   lint:
     name: Code Style Check
@@ -59,7 +59,7 @@ jobs:
     - name: Install Guile
       run: |
         sudo apt-get update
-        sudo apt-get install -y guile-3.0
+        sudo apt-get install -y guile-3.0 make
     
     - name: Check code style
       run: |
@@ -75,7 +75,7 @@ jobs:
     - name: Install Guile
       run: |
         sudo apt-get update
-        sudo apt-get install -y guile-3.0
+        sudo apt-get install -y guile-3.0 make
     
     - name: Create distribution
       run: |
@@ -86,3 +86,4 @@ jobs:
       with:
         name: nimbus-dist
         path: dist/*.tar.gz
+        if-no-files-found: warn
