@@ -1,0 +1,295 @@
+%%%% Starting test state-management
+Group begin: state-management
+Group begin: resource-creation
+Test begin:
+  test-name: "resource-id"
+  source-file: "tests/test-state.scm"
+  source-line: 20
+  source-form: (test-equal "resource-id" "test-resource-1" (resource-id resource))
+Test end:
+  result-kind: pass
+  actual-value: "test-resource-1"
+  expected-value: "test-resource-1"
+Test begin:
+  test-name: "resource-state-id"
+  source-file: "tests/test-state.scm"
+  source-line: 24
+  source-form: (test-equal "resource-state-id" "test-state-1" (resource-state-id resource))
+Test end:
+  result-kind: pass
+  actual-value: "test-state-1"
+  expected-value: "test-state-1"
+Test begin:
+  test-name: "resource-type"
+  source-file: "tests/test-state.scm"
+  source-line: 28
+  source-form: (test-equal "resource-type" "AWS::S3::Bucket" (resource-type resource))
+Test end:
+  result-kind: pass
+  actual-value: "AWS::S3::Bucket"
+  expected-value: "AWS::S3::Bucket"
+Test begin:
+  test-name: "resource-name"
+  source-file: "tests/test-state.scm"
+  source-line: 32
+  source-form: (test-equal "resource-name" "test-bucket" (resource-name resource))
+Test end:
+  result-kind: pass
+  actual-value: "test-bucket"
+  expected-value: "test-bucket"
+Test begin:
+  test-name: "resource-status-is-pending"
+  source-file: "tests/test-state.scm"
+  source-line: 36
+  source-form: (test-assert "resource-status-is-pending" (eq? (resource-status-value (resource-status resource)) (quote pending)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "resource-dependencies-empty"
+  source-file: "tests/test-state.scm"
+  source-line: 40
+  source-form: (test-assert "resource-dependencies-empty" (null? (resource-dependencies resource)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "resource-properties-is-hash-table"
+  source-file: "tests/test-state.scm"
+  source-line: 43
+  source-form: (test-assert "resource-properties-is-hash-table" (hash-table? (resource-properties resource)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: resource-creation
+Group begin: state-creation
+Test begin:
+  test-name: "state-id"
+  source-file: "tests/test-state.scm"
+  source-line: 53
+  source-form: (test-equal "state-id" "test-state-1" (state-id state))
+Test end:
+  result-kind: pass
+  actual-value: "test-state-1"
+  expected-value: "test-state-1"
+Test begin:
+  test-name: "state-stack-name"
+  source-file: "tests/test-state.scm"
+  source-line: 57
+  source-form: (test-equal "state-stack-name" "test-stack" (state-stack-name state))
+Test end:
+  result-kind: pass
+  actual-value: "test-stack"
+  expected-value: "test-stack"
+Test begin:
+  test-name: "state-environment"
+  source-file: "tests/test-state.scm"
+  source-line: 61
+  source-form: (test-equal "state-environment" "test" (state-environment state))
+Test end:
+  result-kind: pass
+  actual-value: "test"
+  expected-value: "test"
+Test begin:
+  test-name: "state-version"
+  source-file: "tests/test-state.scm"
+  source-line: 65
+  source-form: (test-equal "state-version" 1 (state-version state))
+Test end:
+  result-kind: pass
+  actual-value: 1
+  expected-value: 1
+Test begin:
+  test-name: "state-resources-is-hash-table"
+  source-file: "tests/test-state.scm"
+  source-line: 69
+  source-form: (test-assert "state-resources-is-hash-table" (hash-table? (state-resources state)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "state-outputs-is-hash-table"
+  source-file: "tests/test-state.scm"
+  source-line: 72
+  source-form: (test-assert "state-outputs-is-hash-table" (hash-table? (state-outputs state)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: state-creation
+Group begin: state-resource-management
+Test begin:
+  test-name: "state-has-two-resources"
+  source-file: "tests/test-state.scm"
+  source-line: 96
+  source-form: (test-equal "state-has-two-resources" 2 (hash-count (const #t) (state-resources state)))
+Test end:
+  result-kind: pass
+  actual-value: 2
+  expected-value: 2
+Test begin:
+  test-name: "get-resource-by-id"
+  source-file: "tests/test-state.scm"
+  source-line: 100
+  source-form: (test-equal "get-resource-by-id" resource1 (get-resource state "resource-1"))
+Test end:
+  result-kind: pass
+  actual-value: #<<resource> 82b7c9500>
+  expected-value: #<<resource> 82b7c9500>
+Test begin:
+  test-name: "state-version-incremented"
+  source-file: "tests/test-state.scm"
+  source-line: 104
+  source-form: (test-equal "state-version-incremented" 3 (state-version state))
+Test end:
+  result-kind: pass
+  actual-value: 3
+  expected-value: 3
+Test begin:
+  test-name: "resource-updated"
+  source-file: "tests/test-state.scm"
+  source-line: 112
+  source-form: (test-assert "resource-updated" (eq? (resource-status-value (resource-status (get-resource state "resource-1"))) (quote created)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "resource-removed"
+  source-file: "tests/test-state.scm"
+  source-line: 120
+  source-form: (test-equal "resource-removed" 1 (hash-count (const #t) (state-resources state)))
+Test end:
+  result-kind: pass
+  actual-value: 1
+  expected-value: 1
+Test begin:
+  test-name: "removed-resource-not-found"
+  source-file: "tests/test-state.scm"
+  source-line: 124
+  source-form: (test-assert "removed-resource-not-found" (not (get-resource state "resource-2")))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: state-resource-management
+Group begin: state-snapshot
+Test begin:
+  test-name: "snapshot-id"
+  source-file: "tests/test-state.scm"
+  source-line: 134
+  source-form: (test-equal "snapshot-id" "snapshot-1" (state-snapshot-id snapshot))
+Test end:
+  result-kind: pass
+  actual-value: "snapshot-1"
+  expected-value: "snapshot-1"
+Test begin:
+  test-name: "snapshot-state-id"
+  source-file: "tests/test-state.scm"
+  source-line: 138
+  source-form: (test-equal "snapshot-state-id" "test-state-1" (state-snapshot-state-id snapshot))
+Test end:
+  result-kind: pass
+  actual-value: "test-state-1"
+  expected-value: "test-state-1"
+Test begin:
+  test-name: "snapshot-operation-type"
+  source-file: "tests/test-state.scm"
+  source-line: 142
+  source-form: (test-equal "snapshot-operation-type" "create" (state-snapshot-operation-type snapshot))
+Test end:
+  result-kind: pass
+  actual-value: "create"
+  expected-value: "create"
+Test begin:
+  test-name: "snapshot-data-is-hash-table"
+  source-file: "tests/test-state.scm"
+  source-line: 146
+  source-form: (test-assert "snapshot-data-is-hash-table" (hash-table? (state-snapshot-data snapshot)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: state-snapshot
+Group begin: state-checksum
+Test begin:
+  test-name: "checksum-is-string"
+  source-file: "tests/test-state.scm"
+  source-line: 161
+  source-form: (test-assert "checksum-is-string" (string? checksum1))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "checksum-has-length"
+  source-file: "tests/test-state.scm"
+  source-line: 164
+  source-form: (test-assert "checksum-has-length" (> (string-length checksum1) 0))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "checksum-changes-with-state"
+  source-file: "tests/test-state.scm"
+  source-line: 171
+  source-form: (test-assert "checksum-changes-with-state" (not (string=? checksum1 checksum2)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: state-checksum
+Group begin: resource-status
+Test begin:
+  test-name: "status-pending"
+  source-file: "tests/test-state.scm"
+  source-line: 176
+  source-form: (test-assert "status-pending" (eq? (resource-status-value resource-status-pending) (quote pending)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-creating"
+  source-file: "tests/test-state.scm"
+  source-line: 179
+  source-form: (test-assert "status-creating" (eq? (resource-status-value resource-status-creating) (quote creating)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-created"
+  source-file: "tests/test-state.scm"
+  source-line: 182
+  source-form: (test-assert "status-created" (eq? (resource-status-value resource-status-created) (quote created)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-updating"
+  source-file: "tests/test-state.scm"
+  source-line: 185
+  source-form: (test-assert "status-updating" (eq? (resource-status-value resource-status-updating) (quote updating)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-deleting"
+  source-file: "tests/test-state.scm"
+  source-line: 188
+  source-form: (test-assert "status-deleting" (eq? (resource-status-value resource-status-deleting) (quote deleting)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-deleted"
+  source-file: "tests/test-state.scm"
+  source-line: 191
+  source-form: (test-assert "status-deleted" (eq? (resource-status-value resource-status-deleted) (quote deleted)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-failed"
+  source-file: "tests/test-state.scm"
+  source-line: 194
+  source-form: (test-assert "status-failed" (eq? (resource-status-value resource-status-failed) (quote failed)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: resource-status
+Group end: state-management
+# of expected passes      33

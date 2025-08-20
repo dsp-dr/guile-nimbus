@@ -1,0 +1,447 @@
+%%%% Starting test deployment-history
+Group begin: deployment-history
+Group begin: deployment-status
+Test begin:
+  test-name: "status-pending"
+  source-file: "tests/test-deployment.scm"
+  source-line: 14
+  source-form: (test-assert "status-pending" (eq? (deployment-status-value deployment-status-pending) (quote pending)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-running"
+  source-file: "tests/test-deployment.scm"
+  source-line: 17
+  source-form: (test-assert "status-running" (eq? (deployment-status-value deployment-status-running) (quote running)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-completed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 20
+  source-form: (test-assert "status-completed" (eq? (deployment-status-value deployment-status-completed) (quote completed)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-failed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 23
+  source-form: (test-assert "status-failed" (eq? (deployment-status-value deployment-status-failed) (quote failed)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "status-rolled-back"
+  source-file: "tests/test-deployment.scm"
+  source-line: 26
+  source-form: (test-assert "status-rolled-back" (eq? (deployment-status-value deployment-status-rolled-back) (quote rolled-back)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: deployment-status
+Group begin: deployment-type
+Test begin:
+  test-name: "type-create"
+  source-file: "tests/test-deployment.scm"
+  source-line: 31
+  source-form: (test-assert "type-create" (eq? (deployment-type-value deployment-type-create) (quote create)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "type-update"
+  source-file: "tests/test-deployment.scm"
+  source-line: 34
+  source-form: (test-assert "type-update" (eq? (deployment-type-value deployment-type-update) (quote update)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "type-delete"
+  source-file: "tests/test-deployment.scm"
+  source-line: 37
+  source-form: (test-assert "type-delete" (eq? (deployment-type-value deployment-type-delete) (quote delete)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "type-rollback"
+  source-file: "tests/test-deployment.scm"
+  source-line: 40
+  source-form: (test-assert "type-rollback" (eq? (deployment-type-value deployment-type-rollback) (quote rollback)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: deployment-type
+Group begin: deployment-step-creation
+Test begin:
+  test-name: "step-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 52
+  source-form: (test-equal "step-id" "step-1" (deployment-step-id step))
+Test end:
+  result-kind: pass
+  actual-value: "step-1"
+  expected-value: "step-1"
+Test begin:
+  test-name: "step-deployment-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 56
+  source-form: (test-equal "step-deployment-id" "deployment-1" (deployment-step-deployment-id step))
+Test end:
+  result-kind: pass
+  actual-value: "deployment-1"
+  expected-value: "deployment-1"
+Test begin:
+  test-name: "step-name"
+  source-file: "tests/test-deployment.scm"
+  source-line: 60
+  source-form: (test-equal "step-name" "create-bucket" (deployment-step-name step))
+Test end:
+  result-kind: pass
+  actual-value: "create-bucket"
+  expected-value: "create-bucket"
+Test begin:
+  test-name: "step-resource-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 64
+  source-form: (test-equal "step-resource-id" "bucket-1" (deployment-step-resource-id step))
+Test end:
+  result-kind: pass
+  actual-value: "bucket-1"
+  expected-value: "bucket-1"
+Test begin:
+  test-name: "step-action"
+  source-file: "tests/test-deployment.scm"
+  source-line: 68
+  source-form: (test-equal "step-action" "create" (deployment-step-action step))
+Test end:
+  result-kind: pass
+  actual-value: "create"
+  expected-value: "create"
+Test begin:
+  test-name: "step-status-is-pending"
+  source-file: "tests/test-deployment.scm"
+  source-line: 72
+  source-form: (test-assert "step-status-is-pending" (eq? (deployment-status-value (deployment-step-status step)) (quote pending)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "step-not-started"
+  source-file: "tests/test-deployment.scm"
+  source-line: 76
+  source-form: (test-assert "step-not-started" (not (deployment-step-started-at step)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "step-not-completed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 79
+  source-form: (test-assert "step-not-completed" (not (deployment-step-completed-at step)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: deployment-step-creation
+Group begin: deployment-artifact-creation
+Test begin:
+  test-name: "artifact-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 92
+  source-form: (test-equal "artifact-id" "artifact-1" (deployment-artifact-id artifact))
+Test end:
+  result-kind: pass
+  actual-value: "artifact-1"
+  expected-value: "artifact-1"
+Test begin:
+  test-name: "artifact-deployment-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 96
+  source-form: (test-equal "artifact-deployment-id" "deployment-1" (deployment-artifact-deployment-id artifact))
+Test end:
+  result-kind: pass
+  actual-value: "deployment-1"
+  expected-value: "deployment-1"
+Test begin:
+  test-name: "artifact-type"
+  source-file: "tests/test-deployment.scm"
+  source-line: 100
+  source-form: (test-equal "artifact-type" "plan" (deployment-artifact-type artifact))
+Test end:
+  result-kind: pass
+  actual-value: "plan"
+  expected-value: "plan"
+Test begin:
+  test-name: "artifact-uri"
+  source-file: "tests/test-deployment.scm"
+  source-line: 104
+  source-form: (test-equal "artifact-uri" "s3://bucket/plans/deployment-1.json" (deployment-artifact-uri artifact))
+Test end:
+  result-kind: pass
+  actual-value: "s3://bucket/plans/deployment-1.json"
+  expected-value: "s3://bucket/plans/deployment-1.json"
+Test begin:
+  test-name: "artifact-checksum"
+  source-file: "tests/test-deployment.scm"
+  source-line: 108
+  source-form: (test-equal "artifact-checksum" "abc123def456" (deployment-artifact-checksum artifact))
+Test end:
+  result-kind: pass
+  actual-value: "abc123def456"
+  expected-value: "abc123def456"
+Test begin:
+  test-name: "artifact-size"
+  source-file: "tests/test-deployment.scm"
+  source-line: 112
+  source-form: (test-equal "artifact-size" 1024 (deployment-artifact-size-bytes artifact))
+Test end:
+  result-kind: pass
+  actual-value: 1024
+  expected-value: 1024
+Group end: deployment-artifact-creation
+Group begin: deployment-creation
+Test begin:
+  test-name: "deployment-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 125
+  source-form: (test-equal "deployment-id" "deployment-1" (deployment-id deployment))
+Test end:
+  result-kind: pass
+  actual-value: "deployment-1"
+  expected-value: "deployment-1"
+Test begin:
+  test-name: "deployment-stack-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 129
+  source-form: (test-equal "deployment-stack-id" "stack-1" (deployment-stack-id deployment))
+Test end:
+  result-kind: pass
+  actual-value: "stack-1"
+  expected-value: "stack-1"
+Test begin:
+  test-name: "deployment-environment"
+  source-file: "tests/test-deployment.scm"
+  source-line: 133
+  source-form: (test-equal "deployment-environment" "production" (deployment-environment deployment))
+Test end:
+  result-kind: pass
+  actual-value: "production"
+  expected-value: "production"
+Test begin:
+  test-name: "deployment-deployer-id"
+  source-file: "tests/test-deployment.scm"
+  source-line: 137
+  source-form: (test-equal "deployment-deployer-id" "user-123" (deployment-deployer-id deployment))
+Test end:
+  result-kind: pass
+  actual-value: "user-123"
+  expected-value: "user-123"
+Test begin:
+  test-name: "deployment-type-is-create"
+  source-file: "tests/test-deployment.scm"
+  source-line: 141
+  source-form: (test-assert "deployment-type-is-create" (eq? (deployment-type-value (deployment-type deployment)) (quote create)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deployment-status-is-pending"
+  source-file: "tests/test-deployment.scm"
+  source-line: 145
+  source-form: (test-assert "deployment-status-is-pending" (eq? (deployment-status-value (deployment-status deployment)) (quote pending)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deployment-not-completed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 149
+  source-form: (test-assert "deployment-not-completed" (not (deployment-completed-at deployment)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deployment-no-error"
+  source-file: "tests/test-deployment.scm"
+  source-line: 152
+  source-form: (test-assert "deployment-no-error" (not (deployment-error-message deployment)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: deployment-creation
+Group begin: deployment-step-management
+Test begin:
+  test-name: "deployment-has-two-steps"
+  source-file: "tests/test-deployment.scm"
+  source-line: 180
+  source-form: (test-equal "deployment-has-two-steps" 2 (length (deployment-steps deployment)))
+Test end:
+  result-kind: pass
+  actual-value: 2
+  expected-value: 2
+Test begin:
+  test-name: "step1-is-running"
+  source-file: "tests/test-deployment.scm"
+  source-line: 187
+  source-form: (test-assert "step1-is-running" (eq? (deployment-status-value (deployment-step-status step1)) (quote running)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "step1-has-start-time"
+  source-file: "tests/test-deployment.scm"
+  source-line: 191
+  source-form: (test-assert "step1-has-start-time" (deployment-step-started-at step1))
+Test end:
+  result-kind: pass
+  actual-value: #<date nanosecond: 265423000 second: 55 minute: 11 hour: 20 day: 19 month: 8 year: 2025 zone-offset: -14400>
+Test begin:
+  test-name: "step1-is-completed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 198
+  source-form: (test-assert "step1-is-completed" (eq? (deployment-status-value (deployment-step-status step1)) (quote completed)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "step1-has-completion-time"
+  source-file: "tests/test-deployment.scm"
+  source-line: 202
+  source-form: (test-assert "step1-has-completion-time" (deployment-step-completed-at step1))
+Test end:
+  result-kind: pass
+  actual-value: #<date nanosecond: 265542000 second: 55 minute: 11 hour: 20 day: 19 month: 8 year: 2025 zone-offset: -14400>
+Test begin:
+  test-name: "step1-output-data"
+  source-file: "tests/test-deployment.scm"
+  source-line: 205
+  source-form: (test-equal "step1-output-data" "success" (hash-ref (deployment-step-output-data step1) "result"))
+Test end:
+  result-kind: pass
+  actual-value: "success"
+  expected-value: "success"
+Test begin:
+  test-name: "step2-is-failed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 213
+  source-form: (test-assert "step2-is-failed" (eq? (deployment-status-value (deployment-step-status step2)) (quote failed)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "step2-error-message"
+  source-file: "tests/test-deployment.scm"
+  source-line: 217
+  source-form: (test-equal "step2-error-message" "Database connection failed" (deployment-step-error-message step2))
+Test end:
+  result-kind: pass
+  actual-value: "Database connection failed"
+  expected-value: "Database connection failed"
+Group end: deployment-step-management
+Group begin: deployment-completion
+Test begin:
+  test-name: "deployment-is-completed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 233
+  source-form: (test-assert "deployment-is-completed" (eq? (deployment-status-value (deployment-status deployment)) (quote completed)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deployment-has-completion-time"
+  source-file: "tests/test-deployment.scm"
+  source-line: 237
+  source-form: (test-assert "deployment-has-completion-time" (deployment-completed-at deployment))
+Test end:
+  result-kind: pass
+  actual-value: #<date nanosecond: 265924000 second: 55 minute: 11 hour: 20 day: 19 month: 8 year: 2025 zone-offset: -14400>
+Test begin:
+  test-name: "deployment-no-error-on-success"
+  source-file: "tests/test-deployment.scm"
+  source-line: 240
+  source-form: (test-assert "deployment-no-error-on-success" (not (deployment-error-message deployment)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deployment-is-failed"
+  source-file: "tests/test-deployment.scm"
+  source-line: 255
+  source-form: (test-assert "deployment-is-failed" (eq? (deployment-status-value (deployment-status deployment)) (quote failed)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deployment-error-message"
+  source-file: "tests/test-deployment.scm"
+  source-line: 259
+  source-form: (test-equal "deployment-error-message" "Resource not found" (deployment-error-message deployment))
+Test end:
+  result-kind: pass
+  actual-value: "Resource not found"
+  expected-value: "Resource not found"
+Group end: deployment-completion
+Group begin: deployment-artifacts
+Test begin:
+  test-name: "deployment-has-two-artifacts"
+  source-file: "tests/test-deployment.scm"
+  source-line: 290
+  source-form: (test-equal "deployment-has-two-artifacts" 2 (length (deployment-artifacts deployment)))
+Test end:
+  result-kind: pass
+  actual-value: 2
+  expected-value: 2
+Group end: deployment-artifacts
+Group begin: steps-by-status
+Test begin:
+  test-name: "one-completed-step"
+  source-file: "tests/test-deployment.scm"
+  source-line: 329
+  source-form: (test-equal "one-completed-step" 1 (length (get-steps-by-status deployment deployment-status-completed)))
+Test end:
+  result-kind: pass
+  actual-value: 1
+  expected-value: 1
+Test begin:
+  test-name: "one-failed-step"
+  source-file: "tests/test-deployment.scm"
+  source-line: 334
+  source-form: (test-equal "one-failed-step" 1 (length (get-steps-by-status deployment deployment-status-failed)))
+Test end:
+  result-kind: pass
+  actual-value: 1
+  expected-value: 1
+Test begin:
+  test-name: "one-pending-step"
+  source-file: "tests/test-deployment.scm"
+  source-line: 339
+  source-form: (test-equal "one-pending-step" 1 (length (get-steps-by-status deployment deployment-status-pending)))
+Test end:
+  result-kind: pass
+  actual-value: 1
+  expected-value: 1
+Group end: steps-by-status
+Group begin: deployment-progress-check
+Test begin:
+  test-name: "running-deployment-in-progress"
+  source-file: "tests/test-deployment.scm"
+  source-line: 362
+  source-form: (test-assert "running-deployment-in-progress" (deployment-in-progress? running-deployment))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "completed-deployment-not-in-progress"
+  source-file: "tests/test-deployment.scm"
+  source-line: 365
+  source-form: (test-assert "completed-deployment-not-in-progress" (not (deployment-in-progress? completed-deployment)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: deployment-progress-check
+Group end: deployment-history
+# of expected passes      50

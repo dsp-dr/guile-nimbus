@@ -14,47 +14,56 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        include:
-          - os: ubuntu-latest
-            guile-pkg: guile-3.0
+        os: [ubuntu-latest, ubuntu-22.04]
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Install dependencies (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
         sudo apt-get install -y guile-3.0 guile-3.0-dev make
-        # Try to install optional dependencies
+        # Optional dependencies - not required for basic functionality
         sudo apt-get install -y guile-json-4 || sudo apt-get install -y guile-json || true
         sudo apt-get install -y guile-gcrypt || true
     
     - name: Check Guile version
       run: |
-        which guile || which guile-3.0
         guile --version || guile-3.0 --version
+        echo "GUILE_VERSION=$(guile --version | head -n1 | awk '{print $NF}')" >> $GITHUB_ENV
     
     - name: Check dependencies
       run: |
         make check-deps
       continue-on-error: true
     
-    - name: Compile
+    - name: Compile all modules
       run: |
         make compile
     
-    - name: Run tests
+    - name: Run unit tests
       run: |
         make test
+    
+    - name: Test summary
+      if: always()
+      run: |
+        echo "## Test Results Summary"
+        echo "Guile Version: ${{ env.GUILE_VERSION }}"
+        if [ -f "*.log" ]; then
+          echo "### Test Logs:"
+          for log in *.log; do
+            echo "#### $log"
+            tail -n 20 "$log"
+          done
+        fi
 
   lint:
     name: Code Style Check
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Install Guile
       run: |
@@ -64,13 +73,23 @@ jobs:
     - name: Check code style
       run: |
         make check-style
+    
+    - name: Report style violations
+      if: failure()
+      run: |
+        echo "## Code Style Violations Found"
+        echo "Please ensure all Scheme files:"
+        echo "- Use spaces instead of tabs"
+        echo "- Follow consistent indentation"
+        echo "- Have proper module declarations"
 
   build-dist:
     name: Build Distribution
     runs-on: ubuntu-latest
+    needs: [test, lint]
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Install Guile
       run: |
@@ -82,8 +101,56 @@ jobs:
         make dist
     
     - name: Upload distribution
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: nimbus-dist
+        name: nimbus-dist-${{ github.sha }}
         path: dist/*.tar.gz
-        if-no-files-found: warn
+        if-no-files-found: error
+        retention-days: 30
+    
+    - name: List distribution contents
+      run: |
+        echo "## Distribution Contents"
+        tar -tzf dist/*.tar.gz | head -20
+
+  test-coverage:
+    name: Test Coverage Report
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y guile-3.0 guile-3.0-dev make
+    
+    - name: Compile with coverage
+      run: |
+        make compile
+    
+    - name: Run tests with verbose output
+      run: |
+        make test 2>&1 | tee test-output.log
+    
+    - name: Generate test report
+      if: always()
+      run: |
+        echo "## Test Execution Report"
+        echo "### Test Files Executed:"
+        find tests -name "*.scm" -type f | while read test; do
+          echo "- $(basename $test)"
+        done
+        echo ""
+        echo "### Test Results:"
+        grep -E "(Starting test|expected passes|unexpected failures)" test-output.log || true
+    
+    - name: Upload test logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-logs-${{ github.sha }}
+        path: |
+          *.log
+          test-output.log
+        retention-days: 7

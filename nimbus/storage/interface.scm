@@ -83,7 +83,7 @@
   "Delete state data - must be implemented by concrete backend"
   (error "delete-state not implemented for" (storage-backend-name backend)))
 
-(define-method (list-states (backend <storage-backend>) #:key (stack-name #f) (environment #f))
+(define-method (list-states (backend <storage-backend>) . args)
   "List states with optional filtering - must be implemented by concrete backend"
   (error "list-states not implemented for" (storage-backend-name backend)))
 
@@ -99,7 +99,7 @@
   "Delete secret - must be implemented by concrete backend"
   (error "delete-secret not implemented for" (storage-backend-name backend)))
 
-(define-method (list-secrets (backend <storage-backend>) #:key (namespace #f))
+(define-method (list-secrets (backend <storage-backend>) . args)
   "List secrets with optional namespace filtering - must be implemented by concrete backend"
   (error "list-secrets not implemented for" (storage-backend-name backend)))
 
@@ -111,7 +111,7 @@
   "Load deployment record - must be implemented by concrete backend"
   (error "load-deployment not implemented for" (storage-backend-name backend)))
 
-(define-method (list-deployments (backend <storage-backend>) stack-id #:key (limit 10))
+(define-method (list-deployments (backend <storage-backend>) stack-id . args)
   "List deployments for a stack - must be implemented by concrete backend"
   (error "list-deployments not implemented for" (storage-backend-name backend)))
 
@@ -127,7 +127,7 @@
   "Delete policy - must be implemented by concrete backend"
   (error "delete-policy not implemented for" (storage-backend-name backend)))
 
-(define-method (list-policies (backend <storage-backend>) #:key (active-only #t))
+(define-method (list-policies (backend <storage-backend>) . args)
   "List policies with optional filtering - must be implemented by concrete backend"
   (error "list-policies not implemented for" (storage-backend-name backend)))
 
@@ -143,7 +143,7 @@
   "Rollback a transaction - optional"
   #t)  ; Default: always succeed
 
-(define-method (lock-resource (backend <storage-backend>) resource-id #:key (timeout-seconds 30))
+(define-method (lock-resource (backend <storage-backend>) resource-id . args)
   "Acquire a lock on a resource - optional, returns lock token"
   #f)  ; Default: no locking support
 

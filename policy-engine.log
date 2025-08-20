@@ -1,0 +1,328 @@
+%%%% Starting test policy-engine
+Group begin: policy-engine
+Group begin: policy-effects
+Test begin:
+  test-name: "effect-allow"
+  source-file: "tests/test-policy.scm"
+  source-line: 14
+  source-form: (test-assert "effect-allow" (eq? (policy-effect-value policy-effect-allow) (quote allow)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "effect-deny"
+  source-file: "tests/test-policy.scm"
+  source-line: 17
+  source-form: (test-assert "effect-deny" (eq? (policy-effect-value policy-effect-deny) (quote deny)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: policy-effects
+Group begin: policy-rule-creation
+Test begin:
+  test-name: "rule-actions"
+  source-file: "tests/test-policy.scm"
+  source-line: 27
+  source-form: (test-equal "rule-actions" (quote ("s3:GetObject" "s3:ListBucket")) (policy-rule-actions rule))
+Test end:
+  result-kind: pass
+  actual-value: ("s3:GetObject" "s3:ListBucket")
+  expected-value: ("s3:GetObject" "s3:ListBucket")
+Test begin:
+  test-name: "rule-resources"
+  source-file: "tests/test-policy.scm"
+  source-line: 31
+  source-form: (test-equal "rule-resources" (quote ("arn:aws:s3:::my-bucket/*")) (policy-rule-resources rule))
+Test end:
+  result-kind: pass
+  actual-value: ("arn:aws:s3:::my-bucket/*")
+  expected-value: ("arn:aws:s3:::my-bucket/*")
+Test begin:
+  test-name: "rule-no-conditions"
+  source-file: "tests/test-policy.scm"
+  source-line: 35
+  source-form: (test-assert "rule-no-conditions" (not (policy-rule-conditions rule)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: policy-rule-creation
+Group begin: policy-creation
+Test begin:
+  test-name: "policy-id"
+  source-file: "tests/test-policy.scm"
+  source-line: 46
+  source-form: (test-equal "policy-id" "policy-1" (policy-id policy))
+Test end:
+  result-kind: pass
+  actual-value: "policy-1"
+  expected-value: "policy-1"
+Test begin:
+  test-name: "policy-name"
+  source-file: "tests/test-policy.scm"
+  source-line: 50
+  source-form: (test-equal "policy-name" "read-only-policy" (policy-name policy))
+Test end:
+  result-kind: pass
+  actual-value: "read-only-policy"
+  expected-value: "read-only-policy"
+Test begin:
+  test-name: "policy-description"
+  source-file: "tests/test-policy.scm"
+  source-line: 54
+  source-form: (test-equal "policy-description" "Allows read-only access" (policy-description policy))
+Test end:
+  result-kind: pass
+  actual-value: "Allows read-only access"
+  expected-value: "Allows read-only access"
+Test begin:
+  test-name: "policy-effect-is-allow"
+  source-file: "tests/test-policy.scm"
+  source-line: 58
+  source-form: (test-assert "policy-effect-is-allow" (eq? (policy-effect-value (policy-effect policy)) (quote allow)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "policy-is-active"
+  source-file: "tests/test-policy.scm"
+  source-line: 61
+  source-form: (test-assert "policy-is-active" (policy-active? policy))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "policy-rules-empty"
+  source-file: "tests/test-policy.scm"
+  source-line: 64
+  source-form: (test-assert "policy-rules-empty" (null? (policy-rules policy)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: policy-creation
+Group begin: policy-rule-management
+Test begin:
+  test-name: "policy-has-two-rules"
+  source-file: "tests/test-policy.scm"
+  source-line: 84
+  source-form: (test-equal "policy-has-two-rules" 2 (length (policy-rules policy)))
+Test end:
+  result-kind: pass
+  actual-value: 2
+  expected-value: 2
+Test begin:
+  test-name: "policy-has-one-rule"
+  source-file: "tests/test-policy.scm"
+  source-line: 91
+  source-form: (test-equal "policy-has-one-rule" 1 (length (policy-rules policy)))
+Test end:
+  result-kind: pass
+  actual-value: 1
+  expected-value: 1
+Test begin:
+  test-name: "remaining-rule-is-rule2"
+  source-file: "tests/test-policy.scm"
+  source-line: 95
+  source-form: (test-equal "remaining-rule-is-rule2" rule2 (car (policy-rules policy)))
+Test end:
+  result-kind: pass
+  actual-value: #<<policy-rule> 82a6ed000>
+  expected-value: #<<policy-rule> 82a6ed000>
+Group end: policy-rule-management
+Group begin: policy-evaluation
+Test begin:
+  test-name: "allow-s3-getobject"
+  source-file: "tests/test-policy.scm"
+  source-line: 124
+  source-form: (test-assert "allow-s3-getobject" (evaluate-policy allow-policy "s3:GetObject" "arn:aws:s3:::my-bucket/file.txt" context))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "allow-s3-putobject"
+  source-file: "tests/test-policy.scm"
+  source-line: 130
+  source-form: (test-assert "allow-s3-putobject" (evaluate-policy allow-policy "s3:PutObject" "arn:aws:s3:::my-bucket/file.txt" context))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "not-allow-ec2-action"
+  source-file: "tests/test-policy.scm"
+  source-line: 136
+  source-form: (test-assert "not-allow-ec2-action" (not (evaluate-policy allow-policy "ec2:DescribeInstances" "arn:aws:ec2:::instance/*" context)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deny-ec2-action"
+  source-file: "tests/test-policy.scm"
+  source-line: 143
+  source-form: (test-assert "deny-ec2-action" (not (evaluate-policy deny-policy "ec2:TerminateInstances" "*" context)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "not-deny-s3-action"
+  source-file: "tests/test-policy.scm"
+  source-line: 149
+  source-form: (test-assert "not-deny-s3-action" (evaluate-policy deny-policy "s3:GetObject" "arn:aws:s3:::bucket/file" context))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: policy-evaluation
+Group begin: pattern-matching
+Test begin:
+  test-name: "matches-get-action"
+  source-file: "tests/test-policy.scm"
+  source-line: 170
+  source-form: (test-assert "matches-get-action" (evaluate-policy policy "s3:GetObject" "arn:aws:s3:::my-bucket/file.txt" context))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "matches-list-action"
+  source-file: "tests/test-policy.scm"
+  source-line: 176
+  source-form: (test-assert "matches-list-action" (evaluate-policy policy "s3:ListBucket" "arn:aws:s3:::my-data/dir/" context))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "not-matches-put-action"
+  source-file: "tests/test-policy.scm"
+  source-line: 183
+  source-form: (test-assert "not-matches-put-action" (not (evaluate-policy policy "s3:PutObject" "arn:aws:s3:::my-bucket/file.txt" context)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "not-matches-other-bucket"
+  source-file: "tests/test-policy.scm"
+  source-line: 189
+  source-form: (test-assert "not-matches-other-bucket" (not (evaluate-policy policy "s3:GetObject" "arn:aws:s3:::other-bucket/file.txt" context)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: pattern-matching
+Group begin: policy-binding
+Test begin:
+  test-name: "binding-id"
+  source-file: "tests/test-policy.scm"
+  source-line: 204
+  source-form: (test-equal "binding-id" "binding-1" (policy-binding-id binding))
+Test end:
+  result-kind: pass
+  actual-value: "binding-1"
+  expected-value: "binding-1"
+Test begin:
+  test-name: "binding-policy-id"
+  source-file: "tests/test-policy.scm"
+  source-line: 208
+  source-form: (test-equal "binding-policy-id" "policy-1" (policy-binding-policy-id binding))
+Test end:
+  result-kind: pass
+  actual-value: "policy-1"
+  expected-value: "policy-1"
+Test begin:
+  test-name: "binding-subject-type"
+  source-file: "tests/test-policy.scm"
+  source-line: 212
+  source-form: (test-equal "binding-subject-type" "user" (policy-binding-subject-type binding))
+Test end:
+  result-kind: pass
+  actual-value: "user"
+  expected-value: "user"
+Test begin:
+  test-name: "binding-subject-id"
+  source-file: "tests/test-policy.scm"
+  source-line: 216
+  source-form: (test-equal "binding-subject-id" "user-123" (policy-binding-subject-id binding))
+Test end:
+  result-kind: pass
+  actual-value: "user-123"
+  expected-value: "user-123"
+Test begin:
+  test-name: "binding-resource-pattern"
+  source-file: "tests/test-policy.scm"
+  source-line: 220
+  source-form: (test-equal "binding-resource-pattern" "arn:aws:s3:::*" (policy-binding-resource-pattern binding))
+Test end:
+  result-kind: pass
+  actual-value: "arn:aws:s3:::*"
+  expected-value: "arn:aws:s3:::*"
+Group end: policy-binding
+Group begin: policy-evaluation-record
+Test begin:
+  test-name: "eval-id"
+  source-file: "tests/test-policy.scm"
+  source-line: 234
+  source-form: (test-equal "eval-id" "eval-1" (policy-evaluation-id eval-record))
+Test end:
+  result-kind: pass
+  actual-value: "eval-1"
+  expected-value: "eval-1"
+Test begin:
+  test-name: "eval-policy-id"
+  source-file: "tests/test-policy.scm"
+  source-line: 238
+  source-form: (test-equal "eval-policy-id" "policy-1" (policy-evaluation-policy-id eval-record))
+Test end:
+  result-kind: pass
+  actual-value: "policy-1"
+  expected-value: "policy-1"
+Test begin:
+  test-name: "eval-action"
+  source-file: "tests/test-policy.scm"
+  source-line: 242
+  source-form: (test-equal "eval-action" "s3:GetObject" (policy-evaluation-action eval-record))
+Test end:
+  result-kind: pass
+  actual-value: "s3:GetObject"
+  expected-value: "s3:GetObject"
+Test begin:
+  test-name: "eval-resource"
+  source-file: "tests/test-policy.scm"
+  source-line: 246
+  source-form: (test-equal "eval-resource" "arn:aws:s3:::bucket/file" (policy-evaluation-resource eval-record))
+Test end:
+  result-kind: pass
+  actual-value: "arn:aws:s3:::bucket/file"
+  expected-value: "arn:aws:s3:::bucket/file"
+Test begin:
+  test-name: "eval-subject"
+  source-file: "tests/test-policy.scm"
+  source-line: 250
+  source-form: (test-equal "eval-subject" "user-123" (policy-evaluation-subject eval-record))
+Test end:
+  result-kind: pass
+  actual-value: "user-123"
+  expected-value: "user-123"
+Test begin:
+  test-name: "eval-allowed"
+  source-file: "tests/test-policy.scm"
+  source-line: 254
+  source-form: (test-assert "eval-allowed" (policy-evaluation-allowed? eval-record))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: policy-evaluation-record
+Group begin: conditional-policies
+Test begin:
+  test-name: "allow-from-correct-ip"
+  source-file: "tests/test-policy.scm"
+  source-line: 276
+  source-form: (test-assert "allow-from-correct-ip" (evaluate-policy policy "s3:GetObject" "arn:aws:s3:::bucket/file" context-allowed))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "deny-from-wrong-ip"
+  source-file: "tests/test-policy.scm"
+  source-line: 282
+  source-form: (test-assert "deny-from-wrong-ip" (not (evaluate-policy policy "s3:GetObject" "arn:aws:s3:::bucket/file" context-denied)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: conditional-policies
+Group end: policy-engine
+# of expected passes      36

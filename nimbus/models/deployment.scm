@@ -7,7 +7,9 @@
   #:use-module (srfi srfi-19)
   #:use-module (ice-9 hash-table)
   #:export (<deployment-status>
+            deployment-status-value
             <deployment-type>
+            deployment-type-value
             <deployment-step>
             <deployment-artifact>
             <deployment>
@@ -58,7 +60,9 @@
             complete-deployment
             start-step
             complete-step
-            fail-step))
+            fail-step
+            get-steps-by-status
+            deployment-in-progress?))
 
 ;; Deployment Status Enumeration
 (define-class <deployment-status> ()
@@ -217,12 +221,16 @@
   (set! (deployment-artifacts deployment)
         (append (deployment-artifacts deployment) (list artifact))))
 
-(define-method (complete-deployment (deployment <deployment>) status #:key error-message)
+(define-method (complete-deployment (deployment <deployment>) status . args)
   "Mark deployment as complete with the given status"
   (set! (deployment-status deployment) status)
   (set! (deployment-completed-at deployment) (current-date))
-  (when error-message
-    (set! (deployment-error-message deployment) error-message)))
+  (let ((error-message (and (pair? args)
+                           (pair? (cdr args))
+                           (eq? (car args) #:error-message)
+                           (cadr args))))
+    (when error-message
+      (set! (deployment-error-message deployment) error-message))))
 
 ;; Methods for Deployment Step
 (define-method (start-step (step <deployment-step>))
@@ -230,12 +238,16 @@
   (set! (deployment-step-status step) deployment-status-running)
   (set! (deployment-step-started-at step) (current-date)))
 
-(define-method (complete-step (step <deployment-step>) #:key (output-data #f))
+(define-method (complete-step (step <deployment-step>) . args)
   "Mark a deployment step as completed successfully"
   (set! (deployment-step-status step) deployment-status-completed)
   (set! (deployment-step-completed-at step) (current-date))
-  (when output-data
-    (set! (deployment-step-output-data step) output-data)))
+  (let ((output-data (and (pair? args) 
+                          (pair? (cdr args))
+                          (eq? (car args) #:output-data)
+                          (cadr args))))
+    (when output-data
+      (set! (deployment-step-output-data step) output-data))))
 
 (define-method (fail-step (step <deployment-step>) error-message)
   "Mark a deployment step as failed"

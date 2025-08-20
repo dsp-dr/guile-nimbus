@@ -8,6 +8,7 @@
   #:use-module (ice-9 hash-table)
   #:use-module (ice-9 regex)
   #:export (<policy-effect>
+            policy-effect-value
             <policy-rule>
             <policy>
             <policy-binding>

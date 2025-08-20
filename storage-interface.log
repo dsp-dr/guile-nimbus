@@ -1,0 +1,216 @@
+%%%% Starting test storage-interface
+Group begin: storage-interface
+Group begin: storage-backend-creation
+Test begin:
+  test-name: "backend-name"
+  source-file: "tests/test-storage.scm"
+  source-line: 66
+  source-form: (test-equal "backend-name" "mock-backend" (storage-backend-name backend))
+Test end:
+  result-kind: pass
+  actual-value: "mock-backend"
+  expected-value: "mock-backend"
+Test begin:
+  test-name: "backend-config-is-hash-table"
+  source-file: "tests/test-storage.scm"
+  source-line: 70
+  source-form: (test-assert "backend-config-is-hash-table" (hash-table? (storage-backend-config backend)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "backend-config-host"
+  source-file: "tests/test-storage.scm"
+  source-line: 73
+  source-form: (test-equal "backend-config-host" "localhost" (hash-ref (storage-backend-config backend) "host"))
+Test end:
+  result-kind: pass
+  actual-value: "localhost"
+  expected-value: "localhost"
+Group end: storage-backend-creation
+Group begin: state-storage
+Test begin:
+  test-name: "state-loaded"
+  source-file: "tests/test-storage.scm"
+  source-line: 90
+  source-form: (test-assert "state-loaded" (hash-table? loaded-state))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "state-stack-name"
+  source-file: "tests/test-storage.scm"
+  source-line: 93
+  source-form: (test-equal "state-stack-name" "prod-stack" (hash-ref loaded-state "stack-name"))
+Test end:
+  result-kind: pass
+  actual-value: "prod-stack"
+  expected-value: "prod-stack"
+Test begin:
+  test-name: "state-environment"
+  source-file: "tests/test-storage.scm"
+  source-line: 97
+  source-form: (test-equal "state-environment" "production" (hash-ref loaded-state "environment"))
+Test end:
+  result-kind: pass
+  actual-value: "production"
+  expected-value: "production"
+Test begin:
+  test-name: "two-states-listed"
+  source-file: "tests/test-storage.scm"
+  source-line: 104
+  source-form: (test-equal "two-states-listed" 2 (length states))
+Test end:
+  result-kind: pass
+  actual-value: 2
+  expected-value: 2
+Test begin:
+  test-name: "state-deleted"
+  source-file: "tests/test-storage.scm"
+  source-line: 110
+  source-form: (test-assert "state-deleted" (not (load-state backend "state-1")))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: state-storage
+Group begin: secret-storage
+Test begin:
+  test-name: "secret-loaded"
+  source-file: "tests/test-storage.scm"
+  source-line: 122
+  source-form: (test-equal "secret-loaded" "encrypted-password-data" loaded-secret)
+Test end:
+  result-kind: pass
+  actual-value: "encrypted-password-data"
+  expected-value: "encrypted-password-data"
+Test begin:
+  test-name: "secret-2-loaded"
+  source-file: "tests/test-storage.scm"
+  source-line: 130
+  source-form: (test-equal "secret-2-loaded" "encrypted-api-key" (load-secret backend "secret-2"))
+Test end:
+  result-kind: pass
+  actual-value: "encrypted-api-key"
+  expected-value: "encrypted-api-key"
+Test begin:
+  test-name: "secret-3-loaded"
+  source-file: "tests/test-storage.scm"
+  source-line: 134
+  source-form: (test-equal "secret-3-loaded" "encrypted-token" (load-secret backend "secret-3"))
+Test end:
+  result-kind: pass
+  actual-value: "encrypted-token"
+  expected-value: "encrypted-token"
+Group end: secret-storage
+Group begin: deployment-storage
+Test begin:
+  test-name: "deployments-limited"
+  source-file: "tests/test-storage.scm"
+  source-line: 153
+  source-form: (test-assert "deployments-limited" (<= (length deployments) 2))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: deployment-storage
+Group begin: transaction-support
+Test begin:
+  test-name: "begin-transaction-returns-false"
+  source-file: "tests/test-storage.scm"
+  source-line: 161
+  source-form: (test-assert "begin-transaction-returns-false" (not (begin-transaction backend)))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "commit-transaction-succeeds"
+  source-file: "tests/test-storage.scm"
+  source-line: 165
+  source-form: (test-assert "commit-transaction-succeeds" (commit-transaction backend "tx-123"))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "rollback-transaction-succeeds"
+  source-file: "tests/test-storage.scm"
+  source-line: 168
+  source-form: (test-assert "rollback-transaction-succeeds" (rollback-transaction backend "tx-123"))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: transaction-support
+Group begin: resource-locking
+Test begin:
+  test-name: "lock-resource-returns-false"
+  source-file: "tests/test-storage.scm"
+  source-line: 176
+  source-form: (test-assert "lock-resource-returns-false" (not (lock-resource backend "resource-1")))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Test begin:
+  test-name: "unlock-resource-succeeds"
+  source-file: "tests/test-storage.scm"
+  source-line: 180
+  source-form: (test-assert "unlock-resource-succeeds" (unlock-resource backend "resource-1" "lock-token-123"))
+Test end:
+  result-kind: pass
+  actual-value: #t
+Group end: resource-locking
+Group begin: unimplemented-methods
+Test begin:
+  test-name: "save-state-not-implemented"
+  source-file: "tests/test-storage.scm"
+  source-line: 188
+  source-form: (test-error "save-state-not-implemented" #t (save-state backend "state-1" (make-hash-table)))
+Test end:
+  result-kind: pass
+  actual-error: (misc-error #f "save-state not implemented for ~S" ("base-backend") #f)
+  expected-error: #t
+Test begin:
+  test-name: "load-state-not-implemented"
+  source-file: "tests/test-storage.scm"
+  source-line: 192
+  source-form: (test-error "load-state-not-implemented" #t (load-state backend "state-1"))
+Test end:
+  result-kind: pass
+  actual-error: (misc-error #f "load-state not implemented for ~S" ("base-backend") #f)
+  expected-error: #t
+Test begin:
+  test-name: "save-policy-not-implemented"
+  source-file: "tests/test-storage.scm"
+  source-line: 196
+  source-form: (test-error "save-policy-not-implemented" #t (save-policy backend "policy-1" (make-hash-table)))
+Test end:
+  result-kind: pass
+  actual-error: (misc-error #f "save-policy not implemented for ~S" ("base-backend") #f)
+  expected-error: #t
+Test begin:
+  test-name: "load-policy-not-implemented"
+  source-file: "tests/test-storage.scm"
+  source-line: 200
+  source-form: (test-error "load-policy-not-implemented" #t (load-policy backend "policy-1"))
+Test end:
+  result-kind: pass
+  actual-error: (misc-error #f "load-policy not implemented for ~S" ("base-backend") #f)
+  expected-error: #t
+Test begin:
+  test-name: "delete-policy-not-implemented"
+  source-file: "tests/test-storage.scm"
+  source-line: 204
+  source-form: (test-error "delete-policy-not-implemented" #t (delete-policy backend "policy-1"))
+Test end:
+  result-kind: pass
+  actual-error: (misc-error #f "delete-policy not implemented for ~S" ("base-backend") #f)
+  expected-error: #t
+Test begin:
+  test-name: "list-policies-not-implemented"
+  source-file: "tests/test-storage.scm"
+  source-line: 208
+  source-form: (test-error "list-policies-not-implemented" #t (list-policies backend))
+Test end:
+  result-kind: pass
+  actual-error: (misc-error #f "list-policies not implemented for ~S" ("base-backend") #f)
+  expected-error: #t
+Group end: unimplemented-methods
+Group end: storage-interface
+# of expected passes      23
