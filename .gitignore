@@ -1,0 +1,43 @@
+# Compiled Guile files
+*.go
+*.log
+
+# Build directories
+/dist/
+/build/
+
+# Test artifacts
+test-output.log
+*-test.log
+*.log
+
+# Editor files
+*~
+\#*\#
+.*.swp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Guile cache
+.cache/
+*.cache
+
+# Local environment
+.env
+.env.local
+
+# Coverage reports
+coverage/
+*.coverage
+
+# Temporary files
+/tmp/
+*.tmp
+*.temp
+
+# Auto-compile cache
+/nimbus/**/*.go
+/tests/**/*.go
