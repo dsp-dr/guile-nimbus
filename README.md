@@ -1,13 +1,9 @@
 # 🌩️ Nimbus IAC Platform
 
-[![Guile Version](https://img.shields.io/badge/Guile-3.0%2B-blue)](https://www.gnu.org/software/guile/)
-[![License](https://img.shields.io/github/license/dsp-dr/guile-nimbus)](LICENSE)
-[![Code Style](https://img.shields.io/badge/code%20style-scheme-green)](https://www.scheme.org/)
-[![Platform](https://img.shields.io/badge/platform-LocalStack-orange)](https://localstack.cloud/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/dsp-dr/guile-nimbus/ci.yml?branch=main)](https://github.com/dsp-dr/guile-nimbus/actions)
-[![Issues](https://img.shields.io/github/issues/dsp-dr/guile-nimbus)](https://github.com/dsp-dr/guile-nimbus/issues)
+[![Guile 3.0+](https://img.shields.io/badge/Guile-3.0%2B-blue)](https://www.gnu.org/software/guile/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![LocalStack](https://img.shields.io/badge/platform-LocalStack-orange)](https://localstack.cloud/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Made with Guile](https://img.shields.io/badge/Made%20with-Guile%20Scheme-blue)](https://www.gnu.org/software/guile/)
 
 > **A lightweight, functional Infrastructure as Code platform written in Guile Scheme**
 
