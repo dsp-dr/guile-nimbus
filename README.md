@@ -1,5 +1,6 @@
 # 🌩️ Nimbus IAC Platform
 
+[![Status](https://img.shields.io/badge/Status-Experimental-yellow.svg)](https://github.com/dsp-dr/guile-nimbus)
 [![Guile 3.0+](https://img.shields.io/badge/Guile-3.0%2B-blue)](https://www.gnu.org/software/guile/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![LocalStack](https://img.shields.io/badge/platform-LocalStack-orange)](https://localstack.cloud/)
