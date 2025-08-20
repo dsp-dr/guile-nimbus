@@ -1,0 +1,272 @@
+#!/usr/bin/env guile3
+!#
+;;; nimbus - Command-line interface for Nimbus IAC Platform
+;;; Copyright (C) 2025 Nimbus Contributors
+
+(add-to-load-path (dirname (dirname (current-filename))))
+
+(use-modules (ice-9 getopt-long)
+             (ice-9 format)
+             (srfi srfi-1)
+             (nimbus cli commands))
+
+(define nimbus-version "0.2.0-alpha")
+
+(define (display-version)
+  (format #t "Nimbus IAC Platform v~a~%" nimbus-version)
+  (format #t "Copyright (C) 2025 - Infrastructure as Code for LocalStack~%")
+  (format #t "Built with GNU Guile ~a~%" (version)))
+
+(define (display-help)
+  (display "
+Nimbus - Infrastructure as Code for LocalStack
+
+Usage: nimbus [COMMAND] [OPTIONS]
+
+Commands:
+  init [DIR]      Initialize a new Nimbus project
+  plan            Show what changes would be made
+  apply           Apply infrastructure changes
+  destroy         Destroy all managed infrastructure
+  state           Manage infrastructure state
+    list          List all resources
+    show ID       Show resource details
+  workspace       Manage workspaces
+    new NAME      Create new workspace
+    select NAME   Select workspace
+    list          List workspaces
+  validate        Validate configuration files
+  import          Import existing resources
+  refresh         Update state from real infrastructure
+  version         Show version information
+  help            Show this help message
+  
+Global Options:
+  -h, --help          Show help for a command
+  -v, --version       Show version information
+  --verbose           Enable verbose output
+  --no-color          Disable colored output
+  --config FILE       Use alternate config file
+  --state FILE        Use alternate state file
+
+Command Options:
+  plan:
+    --out FILE        Save plan to file
+    --destroy         Create destruction plan
+    
+  apply:
+    --auto-approve    Skip confirmation prompt
+    --plan FILE       Use saved plan file
+    
+  destroy:
+    --auto-approve    Skip confirmation prompt
+    --force           Force destroy (ignore errors)
+
+Examples:
+  nimbus init                    # Initialize in current directory
+  nimbus init myproject          # Initialize in myproject/
+  nimbus plan                    # Preview changes
+  nimbus plan --out plan.out     # Save plan for later
+  nimbus apply --auto-approve    # Apply without confirmation
+  nimbus apply --plan plan.out   # Apply saved plan
+  nimbus state list              # List all resources
+  nimbus state show s3.bucket    # Show specific resource
+  nimbus workspace new staging   # Create staging workspace
+  nimbus destroy --auto-approve  # Destroy without confirmation
+
+For more information, visit: https://github.com/dsp-dr/guile-nimbus
+"))
+
+(define (display-command-help command)
+  (case (string->symbol command)
+    ((init)
+     (display "
+nimbus init - Initialize a new Nimbus project
+
+Usage: nimbus init [DIR]
+
+Creates the basic structure for a Nimbus project:
+  - .nimbus/         State and metadata directory
+  - infrastructure.nim   Infrastructure definition file
+  - nimbus.config    Project configuration
+
+Arguments:
+  DIR    Directory to initialize (default: current directory)
+
+Examples:
+  nimbus init              # Initialize current directory
+  nimbus init myproject    # Create and initialize myproject/
+"))
+    ((plan)
+     (display "
+nimbus plan - Show what changes would be made
+
+Usage: nimbus plan [OPTIONS]
+
+Compares current state with desired state and shows planned changes.
+
+Options:
+  --out FILE      Save plan to file for later apply
+  --destroy       Create a plan to destroy all resources
+  --target RES    Focus on specific resource(s)
+
+Examples:
+  nimbus plan                  # Show plan
+  nimbus plan --out plan.out   # Save plan
+  nimbus plan --destroy        # Plan destruction
+"))
+    ((apply)
+     (display "
+nimbus apply - Apply infrastructure changes
+
+Usage: nimbus apply [OPTIONS]
+
+Creates, updates, or deletes resources to match desired state.
+
+Options:
+  --auto-approve    Skip confirmation prompt
+  --plan FILE       Use previously saved plan
+  --target RES      Apply to specific resource(s)
+
+Examples:
+  nimbus apply                      # Apply with confirmation
+  nimbus apply --auto-approve       # Apply immediately
+  nimbus apply --plan plan.out      # Apply saved plan
+"))
+    ((state)
+     (display "
+nimbus state - Manage infrastructure state
+
+Usage: nimbus state SUBCOMMAND [OPTIONS]
+
+Subcommands:
+  list              List all resources in state
+  show ID           Show details of specific resource
+  rm ID             Remove resource from state
+  mv OLD NEW        Rename resource in state
+  pull              Download remote state
+  push              Upload local state
+
+Examples:
+  nimbus state list                 # List all resources
+  nimbus state show s3.my-bucket    # Show bucket details
+  nimbus state rm lambda.old-func   # Remove from state
+"))
+    (else
+     (format #t "No additional help for command: ~a~%" command))))
+
+(define (main args)
+  (let* ((option-spec '((help (single-char #\h) (value #f))
+                       (version (single-char #\v) (value #f))
+                       (verbose (value #f))
+                       (no-color (value #f))
+                       (config (value #t))
+                       (state (value #t))
+                       (auto-approve (value #f))
+                       (plan (value #t))
+                       (out (value #t))
+                       (destroy (value #f))
+                       (force (value #f))
+                       (target (value #t))))
+         (options (getopt-long args option-spec 
+                              #:stop-at-first-non-option #t))
+         (help-wanted (option-ref options 'help #f))
+         (version-wanted (option-ref options 'version #f))
+         (remaining-args (option-ref options '() '())))
+    
+    (cond
+     ;; Global version flag
+     (version-wanted (display-version))
+     
+     ;; No command given
+     ((null? remaining-args)
+      (if help-wanted
+          (display-help)
+          (begin
+            (format #t "Error: No command specified~%")
+            (format #t "Run 'nimbus help' for usage information~%")
+            (exit 1))))
+     
+     ;; Process commands
+     (else
+      (let ((command (car remaining-args))
+            (cmd-args (cdr remaining-args)))
+        (case (string->symbol command)
+          ;; Core commands
+          ((init) 
+           (if help-wanted
+               (display-command-help "init")
+               (nimbus-init (if (null? cmd-args) "." (car cmd-args)))))
+          
+          ((plan)
+           (if help-wanted
+               (display-command-help "plan")
+               (nimbus-plan (append cmd-args 
+                                  (if (option-ref options 'out #f)
+                                      `("--out" ,(option-ref options 'out #f))
+                                      '())))))
+          
+          ((apply)
+           (if help-wanted
+               (display-command-help "apply")
+               (nimbus-apply (append cmd-args
+                                   (if (option-ref options 'auto-approve #f)
+                                       '("--auto-approve")
+                                       '())
+                                   (if (option-ref options 'plan #f)
+                                       `("--plan" ,(option-ref options 'plan #f))
+                                       '())))))
+          
+          ((destroy)
+           (if help-wanted
+               (display-command-help "destroy")
+               (nimbus-destroy (if (option-ref options 'auto-approve #f)
+                                 '("--auto-approve")
+                                 '()))))
+          
+          ((state)
+           (if help-wanted
+               (display-command-help "state")
+               (if (null? cmd-args)
+                   (format #t "Error: state subcommand required~%")
+                   (case (string->symbol (car cmd-args))
+                     ((list) (nimbus-state-list))
+                     ((show) (nimbus-state-show (and (not (null? (cdr cmd-args)))
+                                                    (cadr cmd-args))))
+                     (else (format #t "Unknown state subcommand: ~a~%" (car cmd-args)))))))
+          
+          ((workspace)
+           (if (null? cmd-args)
+               (format #t "Error: workspace subcommand required~%")
+               (case (string->symbol (car cmd-args))
+                 ((new) (format #t "Creating workspace: ~a~%" (cadr cmd-args)))
+                 ((select) (format #t "Selecting workspace: ~a~%" (cadr cmd-args)))
+                 ((list) (format #t "Workspaces:\\n* default\\n  staging\\n"))
+                 (else (format #t "Unknown workspace subcommand: ~a~%" (car cmd-args))))))
+          
+          ((validate)
+           (nimbus-validate))
+          
+          ((import)
+           (format #t "Import functionality coming soon...~%"))
+          
+          ((refresh)
+           (format #t "Refreshing state from infrastructure...~%"))
+          
+          ;; Help and version
+          ((help)
+           (if (null? cmd-args)
+               (display-help)
+               (display-command-help (car cmd-args))))
+          
+          ((version)
+           (display-version))
+          
+          ;; Unknown command
+          (else 
+           (format #t "Unknown command: ~a~%" command)
+           (format #t "Run 'nimbus help' for usage information~%")
+           (exit 1))))))))
+
+;; Entry point
+(main (command-line))
