@@ -40,4 +40,4 @@ coverage/
 
 # Auto-compile cache
 /nimbus/**/*.go
-/tests/**/*.go
+/tests/**/*.go*.core
