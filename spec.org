@@ -1,0 +1,112 @@
+#+TITLE: Nimbus IAC Platform Specification
+#+AUTHOR: dsp-dr
+#+DATE: 2026-04-18
+
+* Purpose
+
+Nimbus is a lightweight Infrastructure as Code (IAC) platform written in GNU
+Guile Scheme, targeting LocalStack for local cloud development and testing.
+
+* Goals
+
+- Provide a Terraform-like plan/apply workflow in a functional language
+- REPL-driven infrastructure development and debugging
+- LocalStack-first design for safe local iteration
+- Scheme macros for expressive infrastructure DSLs
+- Pluggable storage backends and provider architecture
+
+* Non-Goals
+
+- Production AWS/Azure/GCP provider support (LocalStack only for now)
+- Drop-in Terraform compatibility
+- GUI or web dashboard
+- Multi-user collaboration or remote state locking
+
+* Architecture Overview
+
+** Entry Points
+
+| File        | Role                                              |
+|-------------+---------------------------------------------------|
+| bin/nimbus  | CLI entry point (v0.2.0-alpha), loads nimbus/cli/* |
+| nimbus-cli  | Standalone CLI prototype (v0.1.0-alpha, legacy)   |
+
+** Module Map
+
+| Module                              | Purpose                                    |
+|-------------------------------------+--------------------------------------------|
+| nimbus/cli/commands.scm             | CLI command dispatch (init/plan/apply/etc.) |
+| nimbus/core/config.scm              | Configuration loading from nimbus.config    |
+| nimbus/core/plan.scm                | Execution plan: diff, save, load, execute  |
+| nimbus/models/state.scm             | Resource, State, StateSnapshot GOOPS models |
+| nimbus/models/secrets.scm           | EncryptionKey, Secret, SecretAccess models  |
+| nimbus/models/policy.scm            | Policy engine with glob pattern matching    |
+| nimbus/models/deployment.scm        | Deployment lifecycle and step tracking      |
+| nimbus/providers/localstack/provider.scm | LocalStack connection and health check |
+| nimbus/providers/localstack/s3.scm  | S3 bucket CRUD resource                    |
+| nimbus/providers/localstack/lambda.scm | Lambda function CRUD and invoke          |
+| nimbus/storage/interface.scm        | Abstract storage backend (GOOPS generics)  |
+| nimbus/storage/sqlite.scm           | File-based storage with lock files         |
+
+** Data Flow
+
+#+BEGIN_EXAMPLE
+infrastructure.nim --> [parser (NYI)] --> desired state
+                                              |
+                                              v
+nimbus plan --> calculate-plan(current, desired) --> execution-plan
+                                                         |
+nimbus apply --> execute-plan(plan, provider) --> provider API calls
+                                                         |
+                                              state file updated
+#+END_EXAMPLE
+
+** Key Design Decisions
+
+- GOOPS (Guile Object-Oriented Programming System) for all domain models
+- SRFI-64 for test framework
+- File-based locking for concurrency (no SQLite bindings yet)
+- Crypto operations are stubbed pending guile-gcrypt availability
+- Provider API calls are stubs; no real HTTP requests to LocalStack yet
+- Configuration uses S-expression format (nimbus.config files)
+
+* Test Suites
+
+| File                  | Covers                                     |
+|-----------------------+--------------------------------------------|
+| tests/test-state.scm  | Resource, State, StateSnapshot CRUD        |
+| tests/test-deployment.scm | Deployment lifecycle, steps, artifacts |
+| tests/test-secrets.scm | EncryptionKey, Secret, key rotation       |
+| tests/test-policy.scm | Policy evaluation, pattern matching        |
+| tests/test-storage.scm | Storage interface with mock backend       |
+
+All tests use SRFI-64 and run via =make test= (loads modules with =-L .=).
+
+* Dependencies
+
+| Dependency    | Required | Purpose                          |
+|---------------+----------+----------------------------------|
+| GNU Guile 3.x | Yes      | Runtime                          |
+| GOOPS         | Yes      | Object system (ships with Guile) |
+| SRFI-1, -19, -64 | Yes  | Lists, dates, testing            |
+| guile-gcrypt  | No       | AES-256 encryption (stubbed)     |
+| guile-json    | No       | JSON parsing (not used yet)      |
+
+* Current Status and Known Limitations
+
+- *Alpha stage*: core data models are complete, provider integration is stubbed
+- DSL parser for infrastructure.nim files does not exist; =load-infrastructure-definition=
+  returns hardcoded data
+- The "SQLite backend" (sqlite.scm) uses plain file I/O, not sqlite3 bindings
+- Encryption in secrets.scm is a no-op stub (prepends "[ENCRYPTED]" marker)
+- Provider methods log intent but make no actual HTTP calls
+- The nimbus-cli script is a standalone prototype; bin/nimbus is the intended entry point
+- CI runs on Ubuntu only (GitHub Actions); FreeBSD and macOS supported manually
+
+* Roadmap (v0.3.0)
+
+- Infrastructure DSL parser (S-expression reader for infrastructure.nim)
+- DAG-based dependency resolution for resource ordering
+- Real HTTP calls to LocalStack via Guile web client
+- SQLite storage via guile-sqlite3 bindings
+- guile-gcrypt integration for actual secret encryption

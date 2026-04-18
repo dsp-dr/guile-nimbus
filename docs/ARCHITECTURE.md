@@ -34,11 +34,22 @@ Nimbus is a lightweight Infrastructure as Code platform written in Guile Scheme.
 
 ```
 nimbus/
-├── models/          # Core data models
-│   ├── state.scm    # State management
-│   ├── secrets.scm  # Secrets handling
-│   ├── policy.scm   # Policy engine
-│   └── deployment.scm # Deployment tracking
-└── storage/         # Storage abstraction
-    └── interface.scm # Backend interface
+├── cli/
+│   └── commands.scm      # CLI command implementations (init, plan, apply, etc.)
+├── core/
+│   ├── config.scm        # Configuration loading/saving (nimbus.config files)
+│   └── plan.scm          # Execution plan calculation and diffing
+├── models/               # Core data models (GOOPS classes)
+│   ├── state.scm         # State, Resource, StateSnapshot classes
+│   ├── secrets.scm       # EncryptionKey, Secret, SecretAccess classes
+│   ├── policy.scm        # Policy, PolicyRule, PolicyBinding classes
+│   └── deployment.scm    # Deployment, DeploymentStep, DeploymentArtifact classes
+├── providers/
+│   └── localstack/
+│       ├── provider.scm  # LocalStack provider (endpoint, auth, health check)
+│       ├── s3.scm        # S3 bucket CRUD operations
+│       └── lambda.scm    # Lambda function CRUD and invoke
+└── storage/              # Storage abstraction
+    ├── interface.scm     # Abstract backend interface (generics)
+    └── sqlite.scm        # File-based storage backend with locking
 ```
