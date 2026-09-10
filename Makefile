@@ -57,7 +57,7 @@ compile: check-version $(COMPILED)
 %.go: %.scm
 	@echo "Compiling $<..."
 	@mkdir -p $(dir $@)
-	$(GUILD) compile \
+	$(GUILD) compile -L . \
 		-Wunsupported-warning \
 		-Wunused-variable \
 		-Wunused-toplevel \
